@@ -13,15 +13,30 @@ namespace PlotNet
         public static IEnumerable<string> GetCsprojPaths(string path) =>
             Directory.GetFiles(path, "*.csproj", SearchOption.AllDirectories);
 
+        /// <summary>
+        /// Parses out the dependencies of a csproj file, removing paths as
+        /// well as .csproj to filter out duplicates
+        /// </summary>
+        /// <param name="path">The path of the csproj file</param>
+        /// <returns>
+        /// A list of dependencies
+        /// </returns>
         public static Project ParseCsproj(string path)
         {
-            var projectName = Path.GetFileNameWithoutExtension(path);
+            string projectName = Path.GetFileNameWithoutExtension(path);
 
-            XDocument projectDefinition = XDocument.Load(path);
-
-            var references = projectDefinition
-            .Descendants("ProjectReference")
-            .Select(p => p.Attribute("Include").Value);
+            IEnumerable<string> references = XDocument.Load(path)
+                .Descendants("ProjectReference")
+                .Select(p => p.Attribute("Include").Value)
+                // Drop everything before the last \
+                .Select(p =>
+                {
+                    string[] split = p.Split('\\');
+                    return split[split.Length - 1];
+                })
+                // Drop .csproj if it has it
+                .Select(p => p.Replace(".csproj", ""))
+                .Distinct();
 
             return new Project(projectName, references);
         }
