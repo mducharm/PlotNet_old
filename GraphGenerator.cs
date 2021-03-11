@@ -32,7 +32,7 @@ namespace PlotNet
                 .Select(p =>
                 {
                     string[] split = p.Split('\\');
-                    return split[split.Length - 1];
+                    return split[^1];
                 })
                 // Drop .csproj if it has it
                 .Select(p => p.Replace(".csproj", ""))
@@ -50,47 +50,9 @@ namespace PlotNet
                 };
         }
 
-        private static object CreateNode(string name) =>
-            new
-            {
-                data = new
-                {
-                    id = name
-                }
-            };
-
-        private static object CreateEdge(string source, string target) =>
-            new
-            {
-                data = new
-                {
-                    id = $"{source}{target}",
-                    source,
-                    target
-                }
-            };
-
-        public static IEnumerable<object> GenerateNodesAndEdges(this IEnumerable<Project> projects)
-        {
-            var nodesAndEdges = new List<object>();
-
-            var nodes = projects
-                .SelectMany(p => p.References.Append(p.Name))
-                .Select(CreateNode);
-
-            var edges = projects
-                .SelectMany(p => p.References.Select(r => CreateEdge(p.Name, r)))
-                .ToList();
-
-            nodesAndEdges.AddRange(nodes);
-            nodesAndEdges.AddRange(edges);
-            return nodesAndEdges;
-        }
-
-        public static IEnumerable<object> GenerateGraphData(string path) =>
+        public static IEnumerable<Project> GenerateGraphData(string path) =>
             GetCsprojPaths(path)
-                .Select(ParseCsproj)
-                .GenerateNodesAndEdges();
+                .Select(ParseCsproj);
 
     }
 }

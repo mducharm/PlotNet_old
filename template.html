@@ -24,28 +24,51 @@
 
     <div id="cy"></div>
 
+    <script type="application/json" id="data">
+        <!-- data -->
+    </script>
+
     <script>
 
-        var data = [];
+        var data = JSON.parse(document.getElementById("data").innerHTML);
 
         initializeGraph();
 
+        function getProjectEdges(project) {
+            return project.references
+                .map(reference => ({
+                    data: {
+                        id: project.name + reference,
+                        source: project.name,
+                        target: reference
+                    }
+                }));
+        }
+
+        /**
+         * Takes an array of projects and maps to nodes & edges.
+         * */
+        function mapToElements(data) {
+
+            let nodes = data.map(project => ({
+                data: {
+                    id: project.name
+                }
+            }));
+
+            let edges = data
+                .map(getProjectEdges)
+                // Flattens array of reference arrays
+                .reduce((a, c) => [...a, ...c], []);
+
+            return [...nodes, ...edges];
+        }
+
         function initializeGraph() {
             var cy = cytoscape({
-                container: document.getElementById('cy'), // container to render in
-                elements: data,
-                // [ // list of graph elements to start with
-                //     { // node a
-                //         data: { id: 'a' }
-                //     },
-                //     { // node b
-                //         data: { id: 'b' }
-                //     },
-                //     { // edge ab
-                //         data: { id: 'ab', source: 'a', target: 'b' }
-                //     }
-                // ],
-                style: [ // the stylesheet for the graph
+                container: document.getElementById('cy'),
+                elements: mapToElements(data),
+                style: [
                     {
                         selector: 'node',
                         style: {
@@ -53,7 +76,6 @@
                             'label': 'data(id)'
                         }
                     },
-    
                     {
                         selector: 'edge',
                         style: {

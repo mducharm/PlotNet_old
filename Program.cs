@@ -9,9 +9,15 @@ var path = args[0] ?? Directory.GetCurrentDirectory();
 var repoName = new DirectoryInfo(path).Name; 
 
 var data = GenerateGraphData(path);
-var serializedData = JsonSerializer.Serialize(data);
+
+var options = new JsonSerializerOptions
+{
+    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+};
+
+var serializedData = JsonSerializer.Serialize(data, options);
 
 var generatedGraph = File.ReadAllText("template.html")
-    .Replace("var data = [];", $"var data = {serializedData};");
+    .Replace("<!-- data -->", $"{serializedData}");
 
 File.WriteAllText($"{repoName}.Graph.html", generatedGraph);
