@@ -16,31 +16,26 @@ using System.Collections.Generic;
 [Generator]
 public class FileConstantGenerator : ISourceGenerator
 {
-    public void Initialize(GeneratorInitializationContext context) {}
+    public void Initialize(GeneratorInitializationContext context) { }
 
     public void Execute(GeneratorExecutionContext context)
     {
-
-        // var (_, htmlText) = GetHtml(context);
-
-        var fileData = GetFiles(context);
-        // var source = "";
-
-        var source = fileData.Select(file => file.ToString())
+        var constants = GetFiles(context)
+                        .Select(file => file.ToString())
                                 .Aggregate("", (a, c) => $"{a}{c}\n");
 
-        // htmlText = htmlText.Replace("\"", "\"\"");
-
-        context.AddSource("Template.cs", SourceText.From(@"
+        var source = @"
 using System;
 namespace AdditionalFiles
 {
     public class AsConstants
     {
         " 
-    + source + 
+    + constants +
     @"}
-}", Encoding.UTF8));
+}";
+
+        context.AddSource("Template.cs", SourceText.From(source, Encoding.UTF8));
     }
 
     
