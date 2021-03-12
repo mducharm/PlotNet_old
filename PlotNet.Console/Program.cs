@@ -3,7 +3,7 @@ using System.IO;
 using System.Text.Json;
 using static PlotNet.GraphGenerator;
 
-var path = args[0] ?? Directory.GetCurrentDirectory();
+var path = args.Length > 0 ? args[0] : Directory.GetCurrentDirectory();
 
 var repoName = new DirectoryInfo(path).Name; 
 
