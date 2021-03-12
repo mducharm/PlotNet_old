@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.18.1/cytoscape.min.js"
+        integrity="sha512-MgZAJudXekIHKoFtEk1NUwpSSCDt6JlfkUdwgX/1ustAyJltGO82ayHPOyK31xy9q84nGecgtF+D9hdm2OZldg=="
+        crossorigin="anonymous"></script>
+    <title>PlotNet</title>
+    <style>
+        #cy {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="cy"></div>
+
+    <script type="application/json" id="data">
+        <!-- data -->
+    </script>
+
+    <script>
+
+        var data = JSON.parse(document.getElementById("data").innerHTML);
+
+        initializeGraph();
+
+        function getProjectEdges(project) {
+            return project.references
+                .map(reference => ({
+                    data: {
+                        id: project.name + reference,
+                        source: project.name,
+                        target: reference
+                    }
+                }));
+        }
+
+        /**
+         * Takes an array of projects and maps to nodes & edges.
+         * */
+        function mapToElements(data) {
+
+            let nodes = data.map(project => ({
+                data: {
+                    id: project.name
+                }
+            }));
+
+            let edges = data
+                .map(getProjectEdges)
+                // Flattens array of reference arrays
+                .reduce((a, c) => [...a, ...c], []);
+
+            return [...nodes, ...edges];
+        }
+
+        function initializeGraph() {
+            var cy = cytoscape({
+                container: document.getElementById('cy'),
+                elements: mapToElements(data),
+                style: [
+                    {
+                        selector: 'node',
+                        style: {
+                            'background-color': '#666',
+                            'label': 'data(id)'
+                        }
+                    },
+                    {
+                        selector: 'edge',
+                        style: {
+                            'width': 3,
+                            'line-color': '#ccc',
+                            'target-arrow-color': '#ccc',
+                            'target-arrow-shape': 'triangle',
+                            'curve-style': 'bezier'
+                        }
+                    }
+                ],
+                layout: {
+                    name: 'circle',
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
