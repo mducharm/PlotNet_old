@@ -10,4 +10,8 @@
     
   </PropertyGroup>
 
+   <ItemGroup>
+    <ProjectReference Include="..\PlotNet.Template\PlotNet.Template.csproj" />
+  </ItemGroup>
+  
 </Project>
