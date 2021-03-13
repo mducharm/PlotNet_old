@@ -10,8 +10,13 @@ namespace PlotNet
 {
     public static class GraphGenerator
     {
-        public static IEnumerable<string> GetCsprojPaths(string path) =>
-            Directory.GetFiles(path, "*.csproj", SearchOption.AllDirectories);
+        public static IEnumerable<string> GetCsprojPaths(string path)
+        {
+            Log($"Checking {path}...");
+            var files = Directory.GetFiles(path, "*.csproj", SearchOption.AllDirectories);
+            Log($"{files.Length} projects found.");
+            return files;
+        } 
 
         /// <summary>
         /// Parses out the dependencies of a csproj file, removing paths as
@@ -31,12 +36,14 @@ namespace PlotNet
                 // Drop everything before the last \
                 .Select(p =>
                 {
-                    string[] split = p.Split('\\');
+                    string[] split = p.Replace("/", "\\").Split('\\');
                     return split[^1];
                 })
                 // Drop .csproj if it has it
                 .Select(p => p.Replace(".csproj", ""))
                 .Distinct();
+
+            Log($"{references.Count()} references found for {projectName}.");
 
             return new Project(projectName, references);
         }
@@ -53,6 +60,9 @@ namespace PlotNet
         public static IEnumerable<Project> GenerateGraphData(string path) =>
             GetCsprojPaths(path)
                 .Select(ParseCsproj);
+
+        public static void Log(string msg) => 
+            Console.WriteLine(msg);
 
     }
 }
