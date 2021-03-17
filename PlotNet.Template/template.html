@@ -45,16 +45,23 @@
                 }));
         }
 
+        function toNode(id) {
+            return {
+                data: { id }
+            };
+        }
+
+
         /**
          * Takes an array of projects and maps to nodes & edges.
          * */
         function mapToElements(data) {
 
-            let nodes = data.map(project => ({
-                data: {
-                    id: project.name
-                }
-            }));
+            let nodes = data.map(project => {
+                    let referenceNodes = project.references.map(toNode);
+                    return [toNode(project.name), ...referenceNodes]
+                })
+                .reduce((a, c) => [...a, ...c], []);
 
             let edges = data
                 .map(getProjectEdges)
