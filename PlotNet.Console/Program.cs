@@ -1,9 +1,10 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using static PlotNet.GraphGenerator;
 
-var path = args.Length > 0 ? args[0] : Directory.GetCurrentDirectory();
+var path = args.ElementAtOrDefault(0) ?? Directory.GetCurrentDirectory();
 
 var data = GenerateGraphData(path);
 
