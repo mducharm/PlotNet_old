@@ -23,10 +23,11 @@ namespace PlotNet
         /// well as .csproj to filter out duplicates
         /// </summary>
         /// <param name="path">The path of the csproj file</param>
+        /// <param name="verbose">Logs out the references if supplied</param>
         /// <returns>
         /// A list of dependencies
         /// </returns>
-        public static Project ParseCsproj(string path)
+        public static Project ParseCsproj(string path, bool verbose)
         {
             string projectName = Path.GetFileNameWithoutExtension(path);
 
@@ -45,21 +46,28 @@ namespace PlotNet
 
             Log($"{references.Count()} references found for {projectName}.");
 
+            if (verbose)
+            {
+                foreach(string reference in references)
+                {
+                    Log($"          {reference}");
+                }
+            }
+
             return new Project(projectName, references);
         }
 
-        public static Func<Project, Project> FilterReferences(string referencesToKeep)
-        {
-            return (Project project) =>
-                project with
-                {
-                    References = project.References.Where(r => r.Contains(referencesToKeep))
-                };
-        }
-
-        public static IEnumerable<Project> GenerateGraphData(string path) =>
+        /// <summary>
+        /// Generates the projects from the path given
+        /// </summary>
+        /// <param name="path">The path of the solution</param>
+        /// <param name="verbose">Determines log level</param>
+        /// <returns>
+        /// A list of projects
+        /// </returns>
+        public static IEnumerable<Project> GenerateProjects(string path, bool verbose) =>
             GetCsprojPaths(path)
-                .Select(ParseCsproj);
+                .Select(p => ParseCsproj(p, verbose));
 
         public static void Log(string msg) => 
             Console.WriteLine(msg);
