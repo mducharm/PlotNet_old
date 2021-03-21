@@ -6,12 +6,17 @@ using static PlotNet.GraphGenerator;
 
 var path = args.ElementAtOrDefault(0) ?? Directory.GetCurrentDirectory();
 
-var data = GenerateGraphData(path);
+// Logs out additional information if supplied
+var verbose = args.Any(a => a.Equals("--verbose"));
+
+var data = GenerateProjects(path, verbose);
 
 var options = new JsonSerializerOptions
 {
     PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
 };
+
+var startTime = DateTime.Now;
 
 var serializedData = JsonSerializer.Serialize(data, options);
 
@@ -23,4 +28,4 @@ var fileName = $"{repoName}.Graph.html";
 
 File.WriteAllText(fileName, generatedGraph);
 
-Log($"Completed graph creation, file output: {fileName}");
+Log($"Completed graph creation in {(DateTime.Now - startTime).TotalMilliseconds} ms, file output: {fileName}");
